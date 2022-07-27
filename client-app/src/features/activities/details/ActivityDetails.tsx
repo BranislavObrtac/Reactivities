@@ -1,16 +1,24 @@
+import { observer } from "mobx-react-lite";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { Button, Card, Image } from "semantic-ui-react";
 import LoadingComponent from "../../../app/layout/LoadingComponent";
 import { useStore } from "../../../app/stores/store";
 
-function ActivityDetails() {
+export default observer(function ActivityDetails() {
   const { activityStore } = useStore();
   const {
     selectedActivity: activity,
-    openForm,
-    cancelSelectedActivity,
+    loadActivity,
+    loadingInitial,
   } = activityStore;
+  const { id } = useParams<{ id: string }>();
 
-  if (!activity) return <LoadingComponent />;
+  useEffect(() => {
+    if (id) loadActivity(id);
+  }, [id, loadActivity]);
+
+  if (loadingInitial || !activity) return <LoadingComponent />;
 
   return (
     <Card fluid>
@@ -25,21 +33,14 @@ function ActivityDetails() {
       <Card.Content extra>
         <Button.Group widths="2">
           <Button
-            onClick={() => openForm(activity.id)}
-            bacis
+            as={Link}
+            to={`/manage/${activity.id}`}
             color="blue"
             content="Edit"
           />
-          <Button
-            onClick={cancelSelectedActivity}
-            bacis
-            color="grey"
-            content="Cancel"
-          />
+          <Button as={Link} to={"/activities"} color="grey" content="Cancel" />
         </Button.Group>
       </Card.Content>
     </Card>
   );
-}
-
-export default ActivityDetails;
+});
